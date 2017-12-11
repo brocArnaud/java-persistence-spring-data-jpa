@@ -1,0 +1,131 @@
+#parse("include/init_var_global.vm")
+#parse("include/init_var_entity.vm")
+#parse("include/java_header.vm")
+
+#if ( $entity.hasCompositePrimaryKey() )
+## #set( $primaryKeyType = "${entity.name}EntityKey" )
+#set( $primaryKeyType = ${jpaRecordKeyClass} )
+#else 
+#set( $primaryKeyType = $entity.keyAttributes[0].wrapperType )
+#end
+
+import java.util.List;
+import java.util.Optional;
+
+import $recordPackage.${recordClass};
+import ${ROOT_PKG}.persistence.${entity.name}Persistence;
+import org.demo.persistence.impl.jpa.mapper.${entity.name}Mapper;
+import ${jpaRecordPackage}.${jpaRecordClass};
+#if ( $entity.hasCompositePrimaryKey() )
+import ${jpaRecordPackage}.${jpaRecordKeyClass};
+#end
+import org.demo.persistence.impl.jpa.repository.${entity.name}Repository;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import fr.xebia.extras.selma.Selma;
+
+public class ${entity.name}Service implements ${entity.name}Persistence {
+
+	@Autowired
+	private ${entity.name}Repository ${recordInstance}Repository;
+
+	private ${entity.name}Mapper mapper = Selma.builder(${entity.name}Mapper.class).build();
+
+	@Override
+	public ${recordClass} findById($fn.argumentsListWithWrapperType( $entity.keyAttributes )) {
+		// FIXME the persistence contract is not build with J8, for assure
+		// retrocompatibility we can't return an Optional
+#if ( $entity.hasCompositePrimaryKey() )
+		// Build the composite key
+		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );		
+		return mapper.map(${recordInstance}Repository.findById(key).isPresent() ? ${recordInstance}Repository.findById(key).get() : null);
+#else
+		return mapper.map(${recordInstance}Repository.findById($fn.argumentsList( $entity.keyAttributes )).isPresent() ? ${recordInstance}Repository.findById($fn.argumentsList( $entity.keyAttributes )).get() : null);
+#end
+	}
+
+	@Override
+	public List<${recordClass}> findAll() {
+		return mapper.map(${recordInstance}Repository.findAll());
+	}
+
+	@Override
+	public long countAll() {
+		return ${recordInstance}Repository.count();
+	}
+
+	@Override
+	public ${recordClass} save(${recordClass} record) {
+		return mapper.map(${recordInstance}Repository.save(mapper.map(record)));
+	}
+
+	@Override
+	public boolean update(${recordClass} record) {
+#if ( $entity.hasCompositePrimaryKey() )
+		// Build the composite key
+		$primaryKeyType pk = new $primaryKeyType( $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) );
+#else
+		$primaryKeyType pk = $fn.argumentsListWithGetter( "record", $entity.keyAttributes ) ;
+#end	
+		final Optional<${jpaRecordClass}> result = ${recordInstance}Repository.findById(pk);
+		if (result.isPresent()) {
+			mapper.map(record, result.get());
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public ${recordClass} create(${recordClass} record) {
+		return mapper.map(${recordInstance}Repository.save(mapper.map(record)));
+	}
+
+	@Override
+	public boolean deleteById($fn.argumentsListWithWrapperType( $entity.keyAttributes )) {
+		try {
+#if ( $entity.hasCompositePrimaryKey() )
+		// Build the composite key
+		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );
+		${recordInstance}Repository.deleteById(key);
+#else
+		${recordInstance}Repository.deleteById($fn.argumentsList( $entity.keyAttributes ));
+#end	
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean delete(${recordClass} record) {
+		try {
+			${recordInstance}Repository.delete(mapper.map(record));
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean exists($fn.argumentsListWithWrapperType( $entity.keyAttributes )) {
+#if ( $entity.hasCompositePrimaryKey() )
+		// Build the composite key
+		$primaryKeyType key = new $primaryKeyType( $fn.argumentsList( $entity.keyAttributes ) );
+		return ${recordInstance}Repository.findById(key).isPresent();
+#else
+		return ${recordInstance}Repository.findById($fn.argumentsList($entity.keyAttributes)).isPresent();
+#end	
+	}
+
+	@Override
+	public boolean exists(${recordClass} record) {
+#if ( $entity.hasCompositePrimaryKey() )
+		// Build the composite key
+		$primaryKeyType key = new $primaryKeyType($fn.argumentsListWithGetter("record", $entity.keyAttributes));		
+		return record == null ? false : ${recordInstance}Repository.findById(key).isPresent();
+#else
+		return record == null ? false : ${recordInstance}Repository.findById($fn.argumentsListWithGetter("record", $entity.keyAttributes)).isPresent();
+#end
+	}
+
+}

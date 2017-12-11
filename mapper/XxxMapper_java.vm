@@ -1,0 +1,26 @@
+#checkId($entity)
+#parse("include/init_var_global.vm")
+#parse("include/init_var_entity.vm")
+#parse("include/java_header.vm")
+
+import java.util.List;
+
+import ${recordPackage}.${recordClass};
+import ${jpaRecordPackage}.${jpaRecordClass};
+
+import fr.xebia.extras.selma.Mapper;
+
+@Mapper
+public interface ${entity.name}Mapper {
+
+	// This will build a fresh new ${recordClass} with in infos
+	${recordClass} map(${jpaRecordClass} in);
+	
+	${jpaRecordClass} map(${recordClass} in);
+
+	// This will update the given ${jpaRecordClass}
+	${jpaRecordClass} map(${recordClass} in, ${jpaRecordClass} out);
+
+	// this will build a fresh list of ${recordClass} with in infos
+	List<${recordClass}> map(List<${jpaRecordClass}> in);
+}

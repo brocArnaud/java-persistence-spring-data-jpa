@@ -1,0 +1,24 @@
+#parse("include/init_var_global.vm")
+#parse("include/init_var_entity.vm")
+#parse("include/java_header.vm")
+
+import ${jpaRecordPackage}.${jpaRecordClass};
+#if($entity.hasCompositePrimaryKey())
+import ${jpaRecordPackage}.${jpaRecordKeyClass};
+#end
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+## Resolve key
+#set($keyEntity = "")
+#if($entity.hasCompositePrimaryKey())
+#set($keyEntity = $jpaRecordKeyClass)
+#else
+#foreach( $field in $entity.keyAttributes )
+#set($keyEntity = $field.type)
+#end
+#end
+
+@Repository
+public interface ${jpaRepositoryClass} extends JpaRepository<${jpaRecordClass}, ${keyEntity}>, JpaSpecificationExecutor<${jpaRecordClass}> {
+}
