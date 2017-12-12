@@ -1,12 +1,7 @@
-#checkId($entity)
 #parse("include/init_var_global.vm")
 #parse("include/init_var_entity.vm")
 #parse("include/java_header.vm")
-##--------------------------------------------------------------------------------------------------------
-##----------------------------------------------------------------------------------------------------
-## JPA beans suffix
-## #set ( $env.entityClassNameSuffix = "Entity" )
-#checkId($entity)
+
 ## IF COMPOSITE PRIMARY KEY : GENERATE A JAVA CLASS FOR THIS COMPOSITE KEY
 #if ( $entity.hasCompositePrimaryKey() )
 ## // This Bean has a composite Primary Key  
@@ -27,33 +22,15 @@ import $import;
 /**
  * Persistent class for "${entity.name}" entity stored in table "${entity.databaseTable}" <br>
  * This class is a "record entity" without JPA links  <br>
- *
- * @author Telosys Tools Generator
+ * @author Telosys (http://www.telosys.org/) version $generator.version
  *
  */
-##--- JPQL PK WHERE CLAUSE
-#set( $whereClause = "" )
-#set( $compositePK = "" )
-#if ( $entity.hasCompositePrimaryKey() )
-#set( $compositePK = "compositePrimaryKey." )
-#end
-#foreach( $field in $entity.keyAttributes )
-#if($foreach.count > 1)
-#set( $whereClause = "${whereClause} AND " )
-#end
-#set( $whereClause = "${whereClause}x.${compositePK}${field.name} = ?${foreach.count} " )
-#end
 $jpa.entityAnnotations(0, $entity)
-// Define named queries here
-@NamedQueries ( {
-  @NamedQuery ( name="${jpaRecordClass}.countAll",  query="SELECT COUNT(x) FROM ${jpaRecordClass} x" ),
-  @NamedQuery ( name="${jpaRecordClass}.countById", query="SELECT COUNT(x) FROM ${jpaRecordClass} x WHERE ${whereClause}" )
-} )
 public class ${jpaRecordClass} implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-#if ( $entity.hasCompositePrimaryKey() )
+#if ($entity.hasCompositePrimaryKey())
     //----------------------------------------------------------------------
     // ENTITY PRIMARY KEY ( EMBEDDED IN AN EXTERNAL CLASS )  
     //----------------------------------------------------------------------
@@ -64,9 +41,9 @@ public class ${jpaRecordClass} implements Serializable {
     //----------------------------------------------------------------------
     // ENTITY PRIMARY KEY ( BASED ON A SINGLE FIELD )
     //----------------------------------------------------------------------
-#foreach( $field in $entity.keyAttributes )
+#foreach($field in $entity.keyAttributes)
 $jpa.fieldAnnotations(4, $field)
-    private $field.formattedType(10) $field.formattedName(12) #if($field.hasInitialValue())= ${field.initialValue} #end; #if($field.isFK())// Foreign Key #end 
+    private $field.type $field.name #if($field.hasInitialValue())= ${field.initialValue} #end; #if($field.isFK())// Foreign Key #end 
 #end
 
 #end
@@ -74,9 +51,10 @@ $jpa.fieldAnnotations(4, $field)
     //----------------------------------------------------------------------
     // ENTITY DATA FIELDS 
     //----------------------------------------------------------------------    
-#foreach( $field in $entity.nonKeyAttributes )
+#foreach($field in $entity.nonKeyAttributes)
 $jpa.fieldAnnotations(4, $field)
-    private $field.formattedType(10) $field.formattedName(12) #if($field.hasInitialValue())= ${field.initialValue} #end; #if($field.isFK())// Foreign Key #end 
+    private $field.type $field.name #if($field.hasInitialValue())= ${field.initialValue} #end; #if($field.isFK())// Foreign Key #end 
+
 #end
 
     //----------------------------------------------------------------------
@@ -94,8 +72,8 @@ $jpa.fieldAnnotations(4, $field)
     // GETTER & SETTER FOR THE COMPOSITE KEY 
     //----------------------------------------------------------------------
 #foreach( $field in $entity.keyAttributes )
-#if ( $field.setter )    public void ${field.setter}( $field.type $field.name ) {
-        this.compositePrimaryKey.${field.setter}( $field.name ) ;
+#if ( $field.setter )    public void ${field.setter}($field.type $field.name) {
+        this.compositePrimaryKey.${field.setter}($field.name) ;
     }
 #end
 #if ( $field.getter )    public $field.type ${field.getter}() {
@@ -109,11 +87,11 @@ $jpa.fieldAnnotations(4, $field)
     // GETTER & SETTER FOR THE KEY FIELD
     //----------------------------------------------------------------------
 #foreach( $field in $entity.keyAttributes )
-#if ( $field.setter )    public void ${field.setter}( $field.type $field.name ) {
+#if ( $field.setter )    public void ${field.setter}($field.type $field.name) {
         this.$field.name = $field.name ;
     }
 #end
-#if ( $field.getter )    public $field.type ${field.getter}() {
+#if($field.getter)    public $field.type ${field.getter}() {
         return this.$field.name;
     }
 #end
@@ -124,13 +102,13 @@ $jpa.fieldAnnotations(4, $field)
     // GETTERS & SETTERS FOR FIELDS
     //----------------------------------------------------------------------
 #foreach( $field in $entity.nonKeyAttributes )
-#if ( $field.databaseName )    //--- DATABASE MAPPING : $field.databaseName ( $field.databaseType ) 
+#if ( $field.databaseName )    //--- DATABASE MAPPING : $field.databaseName ($field.databaseType) 
 #end
-#if ( $field.setter )    public void ${field.setter}( $field.type $field.name ) {
+#if ($field.setter)    public void ${field.setter}($field.type $field.name) {
         this.$field.name = $field.name;
     }
 #end
-#if ( $field.getter )    public $field.type ${field.getter}() {
+#if ($field.getter)    public $field.type ${field.getter}() {
         return this.$field.name;
     }
 #end

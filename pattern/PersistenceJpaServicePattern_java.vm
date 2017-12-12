@@ -3,9 +3,7 @@
 /**
  * The pattern defined here is used by the Persistence Service Provider <br>
  * to build the service implementation class name <br>
- * 
- * @author Telosys
- *
+ * @author Telosys (http://www.telosys.org/) version $generator.version
  */
 public class PersistenceJpaServicePattern {
 

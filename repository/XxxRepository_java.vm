@@ -14,11 +14,13 @@ import org.springframework.stereotype.Repository;
 #if($entity.hasCompositePrimaryKey())
 #set($keyEntity = $jpaRecordKeyClass)
 #else
-#foreach( $field in $entity.keyAttributes )
-#set($keyEntity = $field.type)
-#end
+#set($keyEntity = $entity.keyAttributes[0].wrapperType)
 #end
 
+/**
+ * Spring data Jpa repository for "${entity.name}" <br>
+ * @author Telosys (http://www.telosys.org/) version $generator.version
+ */
 @Repository
 public interface ${jpaRepositoryClass} extends JpaRepository<${jpaRecordClass}, ${keyEntity}>, JpaSpecificationExecutor<${jpaRecordClass}> {
 }

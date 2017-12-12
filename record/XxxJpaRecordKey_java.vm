@@ -2,47 +2,42 @@
 #parse("include/init_var_global.vm")
 #parse("include/init_var_entity.vm")
 #parse("include/java_header.vm")
-##--------------------------------------------------------------------------------------------------------
-#set( $currentClassName = "${jpaRecordClass}Key" )
+
 import java.io.Serializable;
 
-## #foreach( $import in $entity.importsForKeyFields )
 #foreach( $import in $java.imports($entity.keyAttributes) )
 import $import;
 #end
-## #foreach( $import in $entity.importsJpa )
 #foreach( $import in $jpa.imports($entity))
 import $import;
 #end
 
 /**
  * Composite primary key for entity "${entity.name}" ( stored in table "${entity.databaseTable}" )
- *
- * @author Telosys Tools Generator
+ * @author Telosys (http://www.telosys.org/) version $generator.version
  *
  */
  @Embeddable
-public class $currentClassName implements Serializable {
+public class ${jpaRecordKeyClass} implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //----------------------------------------------------------------------
     // ENTITY KEY ATTRIBUTES 
     //----------------------------------------------------------------------
 #foreach( $field in $entity.keyAttributes )
-##$field.jpaAnnotationsEmbeddedID(4)
 $jpa.embeddedIdAnnotations(4, $field)
-    private $field.formattedType(10) $field.formattedName(12) #if($field.hasInitialValue())= ${field.initialValue} #end;
+    private $field.type $field.name #if($field.hasInitialValue())= ${field.initialValue} #end;
     
 #end
 
     //----------------------------------------------------------------------
     // CONSTRUCTORS
     //----------------------------------------------------------------------
-    public $currentClassName() {
+    public ${jpaRecordKeyClass}() {
         super();
     }
 
-    public ${currentClassName}( $fn.argumentsListWithWrapperType($entity.keyAttributes) ) {
+    public ${jpaRecordKeyClass}( $fn.argumentsListWithWrapperType($entity.keyAttributes) ) {
         super();
 #foreach( $field in $entity.keyAttributes )
         this.$field.name = $field.name ;
@@ -69,12 +64,12 @@ $jpa.embeddedIdAnnotations(4, $field)
     //----------------------------------------------------------------------
     // equals METHOD
     //----------------------------------------------------------------------
-$java.equalsMethod($currentClassName, $entity.keyAttributes )
+$java.equalsMethod(${jpaRecordKeyClass}, $entity.keyAttributes )
 
     //----------------------------------------------------------------------
     // hashCode METHOD
     //----------------------------------------------------------------------
-$java.hashCodeMethod($currentClassName, $entity.keyAttributes )
+$java.hashCodeMethod(${jpaRecordKeyClass}, $entity.keyAttributes )
 
     //----------------------------------------------------------------------
     // toString METHOD

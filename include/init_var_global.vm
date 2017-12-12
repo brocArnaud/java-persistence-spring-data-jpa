@@ -4,3 +4,4 @@
 #set( $jpaCommonsPackage     = "${ROOT_PKG}.persistence.impl.jpa.commons" )
 #set( $jpaMapperPackage      = "${ROOT_PKG}.persistence.impl.jpa.mapper" )
 #set( $jpaRecordPackage      = "${ROOT_PKG}.persistence.impl.jpa.record" )
+#set( $repositoryPackage     = "${ROOT_PKG}.persistence.impl.jpa.repository" )
