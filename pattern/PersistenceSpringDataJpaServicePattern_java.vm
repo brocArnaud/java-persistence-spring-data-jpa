@@ -5,8 +5,8 @@
  * to build the service implementation class name <br>
  * @author Telosys (http://www.telosys.org/) version $generator.version
  */
-public class PersistenceJpaServicePattern {
+public class PersistenceSpringDataJpaServicePattern {
 
-	public final static String  PATTERN = "%s.impl.jpa.service.%sService" ;
+	public final static String  PATTERN = "%s.impl.springdatajpa.service.%sService" ;
 	
 }

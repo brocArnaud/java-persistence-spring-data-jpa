@@ -8,12 +8,12 @@ import java.util.Optional;
 
 import $recordPackage.${recordClass};
 import ${ROOT_PKG}.persistence.${jpaPersistenceInterfaceClass};
-import org.demo.persistence.impl.jpa.mapper.${jpaMapperClass};
+import ${jpaMapperPackage}.${jpaMapperClass};
 import ${jpaRecordPackage}.${jpaRecordClass};
 #if ( $entity.hasCompositePrimaryKey() )
 import ${jpaRecordPackage}.${jpaRecordKeyClass};
 #end
-import org.demo.persistence.impl.jpa.repository.${jpaRepositoryClass};
+import ${repositoryPackage}.${jpaRepositoryClass};
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
