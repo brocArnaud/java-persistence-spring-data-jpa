@@ -1,7 +1,6 @@
 #parse("include/java_header.vm")
 
 import org.springframework.beans.BeansException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Utility class designed to provide the implementation of a given interface.
@@ -15,6 +14,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class ImplementationProviderSpring {
 
 	private final String pattern;
+
+	public ImplementationProviderSpring() {
+		super();
+		this.pattern = "";
+	}
 
 	/**
 	 * Constructor <br>
@@ -40,32 +44,30 @@ public class ImplementationProviderSpring {
 	 */
 	@SuppressWarnings("unchecked")
 	public final <T> T getServiceInstance(Class<T> interfaceClass) {
-		Class<?> serviceImplementationClass = null;
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 		try {
-			serviceImplementationClass = Class.forName(buildImplementationClassName(interfaceClass));
-			// WARNING : si on ferme l'application contexte comme demander par eclipse, l'application ne fonctionne plus car sont contexte est detruit!
-			return (T) ctx.getBean(serviceImplementationClass);
-		} catch (BeansException | ClassNotFoundException | ClassCastException e) {
-			ctx.close();
-			throw new RuntimeException("Cannot load class : " + serviceImplementationClass, e);
+			return (T) SpringContext.getApplicationContext().getBean(resolveBeanName(interfaceClass));
+		} catch (BeansException | ClassNotFoundException | ClassCastException | IndexOutOfBoundsException e) {
+			throw new RuntimeException("Cannot load class : " + interfaceClass, e);
 		}
 	}
 
 	/**
-	 * Builds the service implementation full class name from the given interface
-	 * class name
+	 * Builds the service bean name.
 	 * 
 	 * @param interfaceClass
 	 * @return
 	 */
-	private final String buildImplementationClassName(Class<?> interfaceClass) {
-
+	private final String resolveBeanName(Class<?> interfaceClass)
+			throws ClassNotFoundException, IndexOutOfBoundsException {
 		Package interfacePackage = interfaceClass.getPackage();
 		String interfacePackageName = interfacePackage != null ? interfacePackage.getName() : "";
 		String interfaceSimpleName = interfaceClass.getSimpleName();
-
+		// Resolved implementation class full name
 		String result = String.format(pattern, interfacePackageName, interfaceSimpleName);
+		// Extract class name
+		result = result.substring(result.lastIndexOf(".") + 1, result.length());
+		// Uncapitalize class name
+		result = result.substring(0, 1).toLowerCase() + result.substring(1);
 		return result;
 	}
 
